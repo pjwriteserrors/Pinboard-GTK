@@ -13,8 +13,22 @@ class main_window(Gtk.Window):
 
         self.connect("destroy", Gtk.main_quit)
 
-        # close on q press
-        self.connect('key-press-event', self.quit_on_q)
+        # -- Button click events --
+        self.connect('key-press-event', self.quit_on_q) # close on q press
+        self.connect('button-press-event', self.on_mouse_click) # start drag
+        self.connect('button-release-event', self.on_mouse_release) # start drag
+        self.connect('motion-notify-event', self.move_window) # move window if motion is detected
+
+        # register window to understand mouse events
+        self.set_events(Gdk.EventMask.BUTTON_PRESS_MASK | 
+                        Gdk.EventMask.BUTTON_RELEASE_MASK | 
+                        Gdk.EventMask.POINTER_MOTION_MASK)
+
+        self.dragging = False # name to store if window is being dragged
+
+        # start position
+        self.start_x = 0
+        self.start_y = 0
 
     # need to have a function for that to access the event name
     def quit_on_q(self, widget, event):
@@ -22,6 +36,27 @@ class main_window(Gtk.Window):
             # if the key value is q, close the window
             print('Closing window...') # debug
             self.close()
+
+    def on_mouse_click(self, widget, event):
+        # This function just saves the position of the mouse in the window
+        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 1: # left click
+            self.start_x, self.start_y = event.x_root, event.y_root
+            self.window_x, self.window_y = self.get_position()
+
+            self.dragging = True
+
+    def on_mouse_release(self, widget, event):
+        # canceles dragging mode if mouse button is released
+        if event.type == Gdk.EventType.BUTTON_RELEASE and event.button == 1:
+            self.dragging = False
+
+    def move_window(self, widget, event):
+        # Moves the window based on mouse movement
+        if event.state & Gdk.ModifierType.BUTTON1_MASK: # check if left mouse button is pressed
+            # calculate new position
+            new_x = self.window_x + (event.x_root - self.start_x)
+            new_y = self.window_y + (event.y_root - self.start_y)
+            self.move(new_x, new_y)
 
 def main():
     # get the args parser
