@@ -7,9 +7,13 @@ from gi.repository import Gtk, Gdk
 
 class main_window(Gtk.Window):
     # main GTK window
-    def __init__(self):
+    def __init__(self, img_x=None, img_y=None, img=None):
         super().__init__()
         self.set_decorated(False)  # remove window decoration
+
+        # set size of window if img was given
+        if img_x and img_y:
+            self.set_default_size(img_x, img_y)
 
         self.connect("destroy", Gtk.main_quit)
 
@@ -33,6 +37,10 @@ class main_window(Gtk.Window):
         # start position
         self.start_x = 0
         self.start_y = 0
+
+        # show image if image was given
+        if img:
+            self.display_image(img)
 
     # need to have a function for that to access the event name
     def quit_on_q(self, widget, event):
@@ -64,9 +72,10 @@ class main_window(Gtk.Window):
             new_y = self.window_y + (event.y_root - self.start_y)
             self.move(new_x, new_y)
 
+    def display_image(self, img):
+        image = Gtk.Image.new_from_pixbuf(img)
+        self.add(image)
 
-def display_image(img_x, img_y, img):
-    print(img_x, img_y, img)
 
 
 def main():
@@ -85,14 +94,13 @@ def main():
     if args.standard:
         print("Open clipboard image in default img viewer")
 
-    if args.pin:
-        img_x, img_y, img = image_handler.get_image()
-        display_image(img_x, img_y, img)
-
     if args.file:
         print("Open file chooser")
 
-    win = main_window()
+    if args.pin:
+        img_x, img_y, pixbuf = image_handler.get_image_clipboard()
+
+    win = main_window(img=pixbuf)
     win.show_all()
     Gtk.main()
 
