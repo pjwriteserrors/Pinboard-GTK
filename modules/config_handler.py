@@ -13,6 +13,8 @@ def write_config():
         "background_color": "white",
         "always_on_top": True,
         "close_key": "q",
+        'increase_size_key': '+',
+        'decrease_size_key': '-',
         "reset_size_key": "b",
         "buttons": False,
     }

@@ -2,7 +2,7 @@ import gi
 from modules import args_handler, config_handler, image_handler
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, GdkPixbuf
 
 
 class main_window(Gtk.Window):
@@ -29,6 +29,7 @@ class main_window(Gtk.Window):
         self.connect(
             "motion-notify-event", self.mouse_move
         )  # move window if motion is detected
+        self.connect("key-press-event", self.resize_window)  # resize image
 
         # register window to understand mouse events
         self.set_events(
@@ -38,13 +39,13 @@ class main_window(Gtk.Window):
         )
 
         self.dragging = False  # name to store if window is being dragged
-        self.resizing = False  # name to store if window is being resized
 
         # start position
         self.start_x = 0
         self.start_y = 0
-        self.start_width = 0
-        self.start_height = 0
+
+        self.img_widget = Gtk.Image()
+        self.original_pixbuf = img
 
         # show image if image was given
         if img:
@@ -64,34 +65,43 @@ class main_window(Gtk.Window):
             self.window_x, self.window_y = self.get_position()
             self.dragging = True
 
-        elif event.button == 3:
-            # start resizing if right click is pressed
-            self.start_x, self.start_y = event.x_root, event.y_root
-            self.start_width, self.start_height = self.get_size()
-            self.resizing = True
-
     def on_mouse_release(self, widget, event):
         # canceles dragging/resizing mode if mouse button is released
         if event.type == Gdk.EventType.BUTTON_RELEASE and event.button == 1:
             self.dragging = False
-        elif event.button == 3:
-            self.resizing = False
 
     def mouse_move(self, widget, event):
-        if self.dragging:        
+        if self.dragging:
             # calculate new position
             new_x = self.window_x + (event.x_root - self.start_x)
             new_y = self.window_y + (event.y_root - self.start_y)
             self.move(new_x, new_y)
-        
-        elif self.resizing:
-            new_width = max(50, self.start_width + (event.x_root - self.start_x))
-            new_height = max(50, self.start_height + (event.y_root - self.start_y))
-            self.resize(new_width, new_height)
 
     def display_image(self, img):
-        image = Gtk.Image.new_from_pixbuf(img)
-        self.add(image)
+        self.img_widget.set_from_pixbuf(img)
+        self.add(self.img_widget)
+        self.show_all()
+
+    def resize_window(self, widget, event):
+        width, height = self.get_size()
+
+        if event.keyval == ord(self.settings["increase_size_key"]):
+            new_width, new_height = width + 20, height + 20
+        elif event.keyval == ord(self.settings["decrease_size_key"]):
+            new_width, new_height = max(50, width - 20), max(50, height - 20)
+        else:
+            return
+
+        self.resize(new_width, new_height)
+        self.resize_image(new_width, new_height)
+
+    def resize_image(self, new_width, new_height):
+        if self.original_pixbuf:
+            scaled_pixbuf = self.original_pixbuf.scale_simple(
+                new_width, new_height, GdkPixbuf.InterpType.BILINEAR
+            )
+            self.img_widget.set_from_pixbuf(scaled_pixbuf)
+            self.show_all()
 
 
 def main():
@@ -115,8 +125,10 @@ def main():
 
     if args.pin:
         img_x, img_y, pixbuf = image_handler.get_image_clipboard()
+        win = main_window(img_x, img_y, img=pixbuf)
+    else:
+        win = main_window()
 
-    win = main_window(img=pixbuf)
     win.show_all()
     Gtk.main()
 
