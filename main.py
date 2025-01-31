@@ -11,6 +11,10 @@ class main_window(Gtk.Window):
         super().__init__()
         self.set_decorated(False)  # remove window decoration
 
+        # always on top if set in settings
+        if config_handler.read_config()['always_on_top']:
+            self.set_keep_above(True)
+
         # set size of window if img was given
         if img_x and img_y:
             self.set_default_size(img_x, img_y)
