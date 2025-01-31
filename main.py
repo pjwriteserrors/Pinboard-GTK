@@ -9,10 +9,12 @@ class main_window(Gtk.Window):
     # main GTK window
     def __init__(self, img_x=None, img_y=None, img=None):
         super().__init__()
+        self.settings = config_handler.read_config()
+
         self.set_decorated(False)  # remove window decoration
 
         # always on top if set in settings
-        if config_handler.read_config()['always_on_top']:
+        if self.settings["always_on_top"]:
             self.set_keep_above(True)
 
         # set size of window if img was given
@@ -22,7 +24,7 @@ class main_window(Gtk.Window):
         self.connect("destroy", Gtk.main_quit)
 
         # -- Button click events --
-        self.connect("key-press-event", self.quit_on_q)  # close on q press
+        self.connect("key-press-event", self.quit)  # close on q press
         self.connect("button-press-event", self.on_mouse_click)  # start drag
         self.connect("button-release-event", self.on_mouse_release)  # start drag
         self.connect(
@@ -47,8 +49,8 @@ class main_window(Gtk.Window):
             self.display_image(img)
 
     # need to have a function for that to access the event name
-    def quit_on_q(self, widget, event):
-        if event.keyval == Gdk.KEY_q:
+    def quit(self, widget, event):
+        if event.keyval == ord(self.settings['close_key']):
             # if the key value is q, close the window
             print("Closing window...")  # debug
             self.close()
@@ -79,7 +81,6 @@ class main_window(Gtk.Window):
     def display_image(self, img):
         image = Gtk.Image.new_from_pixbuf(img)
         self.add(image)
-
 
 
 def main():

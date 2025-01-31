@@ -8,6 +8,7 @@ def write_config():
 
     # dict of all default settings
     settings = {
+        'border': True,
         "border_color": "black",
         "background_color": "white",
         "always_on_top": True,
@@ -20,16 +21,17 @@ def write_config():
     with open(settings_file, "w") as file:
         json.dump(settings, file, indent=4) # dump settings into file
 
+    return settings
+
 
 def read_config() -> dict:
     # store in name for ez location
     settings_file = os.path.expanduser("~") + "/.config/pinboard/settings.json"
 
-    if os.path.exists(settings_file):
+    if os.path.isfile(settings_file):
         with open(settings_file, "r") as file:
             settings = json.load(file) # load dict of all settings stored in the file
     else:
-        write_config()
-        read_config()
+        settings = write_config()
 
     return settings
