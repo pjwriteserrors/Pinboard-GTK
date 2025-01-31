@@ -6,7 +6,6 @@ from gi.repository import Gtk, Gdk
 
 
 class main_window(Gtk.Window):
-    # main GTK window
     def __init__(self, img_x=None, img_y=None, img=None):
         super().__init__()
         self.settings = config_handler.read_config()
@@ -28,7 +27,7 @@ class main_window(Gtk.Window):
         self.connect("button-press-event", self.on_mouse_click)  # start drag
         self.connect("button-release-event", self.on_mouse_release)  # start drag
         self.connect(
-            "motion-notify-event", self.move_window
+            "motion-notify-event", self.mouse_move
         )  # move window if motion is detected
 
         # register window to understand mouse events
@@ -39,10 +38,13 @@ class main_window(Gtk.Window):
         )
 
         self.dragging = False  # name to store if window is being dragged
+        self.resizing = False  # name to store if window is being resized
 
         # start position
         self.start_x = 0
         self.start_y = 0
+        self.start_width = 0
+        self.start_height = 0
 
         # show image if image was given
         if img:
@@ -50,33 +52,42 @@ class main_window(Gtk.Window):
 
     # need to have a function for that to access the event name
     def quit(self, widget, event):
-        if event.keyval == ord(self.settings['close_key']):
+        if event.keyval == ord(self.settings["close_key"]):
             # if the key value is q, close the window
             print("Closing window...")  # debug
             self.close()
 
     def on_mouse_click(self, widget, event):
-        # This function just saves the position of the mouse in the window
-        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 1:  # left click
+        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 1:
+            # start dragging if left click is pressed
             self.start_x, self.start_y = event.x_root, event.y_root
             self.window_x, self.window_y = self.get_position()
-
             self.dragging = True
 
+        elif event.button == 3:
+            # start resizing if right click is pressed
+            self.start_x, self.start_y = event.x_root, event.y_root
+            self.start_width, self.start_height = self.get_size()
+            self.resizing = True
+
     def on_mouse_release(self, widget, event):
-        # canceles dragging mode if mouse button is released
+        # canceles dragging/resizing mode if mouse button is released
         if event.type == Gdk.EventType.BUTTON_RELEASE and event.button == 1:
             self.dragging = False
+        elif event.button == 3:
+            self.resizing = False
 
-    def move_window(self, widget, event):
-        # Moves the window based on mouse movement
-        if (
-            event.state & Gdk.ModifierType.BUTTON1_MASK
-        ):  # check if left mouse button is pressed
+    def mouse_move(self, widget, event):
+        if self.dragging:        
             # calculate new position
             new_x = self.window_x + (event.x_root - self.start_x)
             new_y = self.window_y + (event.y_root - self.start_y)
             self.move(new_x, new_y)
+        
+        elif self.resizing:
+            new_width = max(50, self.start_width + (event.x_root - self.start_x))
+            new_height = max(50, self.start_height + (event.y_root - self.start_y))
+            self.resize(new_width, new_height)
 
     def display_image(self, img):
         image = Gtk.Image.new_from_pixbuf(img)
