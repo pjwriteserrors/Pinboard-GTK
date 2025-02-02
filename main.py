@@ -127,19 +127,23 @@ def main():
         config_handler.write_config()
 
     if args.standard:
-        print("Open clipboard image in default img viewer")
+        # show image in default image viwer
+        image_handler.show_img_in_viewer()
+        return
 
     if args.file:
-        print("Open file chooser")
+        img_x, img_y, pixbuf = image_handler.open_file_dialog()
+        win = main_window(img_x, img_y, img=pixbuf)
+        win.show_all()
+        Gtk.main()
 
     if args.pin:
-        img_x, img_y, pixbuf = image_handler.get_image_clipboard()
+        img_x, img_y, pixbuf = image_handler.get_image()
         win = main_window(img_x, img_y, img=pixbuf)
-    else:
-        win = main_window()
+        win.show_all()
+        Gtk.main()
 
-    win.show_all()
-    Gtk.main()
+    
 
 
 if __name__ == "__main__":

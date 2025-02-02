@@ -8,4 +8,8 @@ Pinboard is a simple Python GTK app that can pin your images to your desktop.
 - [x] Always on top
 - [x] resize window
 - [x] resize image (fix proportions)
-- [ ] Write other image handler
+- [x] default image viewer
+- [x] open file
+
+- [ ] rotation
+- [ ] gif support
