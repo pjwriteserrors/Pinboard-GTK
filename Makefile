@@ -11,6 +11,10 @@ EXECUTABLE_NAME = pinboard
 all: create_venv install_dependencies create_config_dir build_executable
 
 create_venv:
+	$(PYTHON) -m venv $(PYTHON_VENV)
+	@echo "Venv created"
+
+install_dependencies:
 	@echo "Installing dependencies..."
 	$(PYTHON_VENV)/bin/pip install -r $(REQUIREMTNS_FILE)
 	@echo "Dependencies installed."
