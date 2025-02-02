@@ -15,9 +15,24 @@ create_venv:
 	@echo "Venv created"
 
 install_dependencies:
-	@echo "Installing dependencies..."
+	@echo "Installing python dependencies..."
 	$(PYTHON_VENV)/bin/pip install -r $(REQUIREMTNS_FILE)
-	@echo "Dependencies installed."
+	@echo "Python dependencies installed."
+
+	@echo "Checking clipboard requirements..."
+	@if [ "$$(echo $$XDG_SESSION_TYPE)" = "x11" ]; then \
+		echo "Detected X11 - Installing xclip..."; \
+		if command -v apt > /dev/null 2>&1; then sudo apt install -y xclip; fi; \
+		if command -v dnf > /dev/null 2>&1; then sudo dnf install -y xclip; fi; \
+		if command -v pacman > /dev/null 2>&1; then sudo pacman -S --noconfirm xclip; fi; \
+	elif [ "$$(echo $$XDG_SESSION_TYPE)" = "wayland" ]; then \
+		echo "Detected Wayland - Installing wl-clipboard..."; \
+		if command -v apt > /dev/null 2>&1; then sudo apt install -y wl-clipboard; fi; \
+		if command -v dnf > /dev/null 2>&1; then sudo dnf install -y wl-clipboard; fi; \
+		if command -v pacman > /dev/null 2>&1; then sudo pacman -S --noconfirm wl-clipboard; fi; \
+	else \
+		echo "Could not detect X11 or Wayland - Skipping clipboard tool installation."; \
+	fi
 
 create_config_dir:
 	mkdir -p $(CONFIG_DIR)
