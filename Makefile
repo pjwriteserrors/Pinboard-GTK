@@ -15,7 +15,7 @@ create_venv:
 	$(PYTHON_VENV)/bin/pip install -r $(REQUIREMTNS_FILE)
 	@echo "Dependencies installed."
 
-create_config_dir
+create_config_dir:
 	mkdir -p $(CONFIG_DIR)
 	@echo "Config dir: $(CONFIG_DIR)"
 
