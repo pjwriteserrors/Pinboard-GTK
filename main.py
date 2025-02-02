@@ -86,11 +86,14 @@ class main_window(Gtk.Window):
         width, height = self.get_size()
 
         if event.keyval == ord(self.settings["increase_size_key"]):
-            new_width, new_height = width + 20, height + 20
+            scale_factor = 1.1
         elif event.keyval == ord(self.settings["decrease_size_key"]):
-            new_width, new_height = max(50, width - 20), max(50, height - 20)
+            scale_factor = 0.9
         else:
             return
+
+        new_width = int(self.get_size()[0] * scale_factor)
+        new_height = int(self.get_size()[1] * scale_factor)
 
         self.resize(new_width, new_height)
         self.resize_image(new_width, new_height)
