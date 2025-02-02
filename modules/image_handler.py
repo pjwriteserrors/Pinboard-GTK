@@ -33,6 +33,7 @@ def get_image_clipboard():
 
 
 def open_file_dialog():
+    # make file chooser
     dialog = Gtk.FileChooserDialog(
         title="Choose image",
         action=Gtk.FileChooserAction.OPEN,
@@ -44,6 +45,7 @@ def open_file_dialog():
         ),
     )
 
+    # setting filters
     filter_images = Gtk.FileFilter()
     filter_images.set_name("Images (JPG, PNG)")
     filter_images.add_mime_type("image/jpeg")
@@ -52,9 +54,11 @@ def open_file_dialog():
     response = dialog.run()
 
     if response == Gtk.ResponseType.OK:
+        # get filepath
         file_path = dialog.get_filename()
         dialog.destroy()
 
+        # make pillow img to convert to pixbuf
         img = Image.open(file_path)
 
         width, height, pixbuf = make_pixbuf(img)
