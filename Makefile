@@ -50,7 +50,7 @@ create_config_dir:
 
 build_executable:
 	@echo "Starting build..."
-	$(PYINSTALLER) --onefile --name pinboard main.py
+	$(PYINSTALLER) --onefile --strip --noconfirm --windowed --name pinboard main.py
 	@echo "Building done."
 
 clean:
