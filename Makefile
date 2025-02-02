@@ -34,6 +34,16 @@ install_dependencies:
 		echo "Could not detect X11 or Wayland - Skipping clipboard tool installation."; \
 	fi
 
+	@echo "Checking for gobject-introspection..."
+	@if ! command -v g-ir-scanner > /dev/null 2>&1; then \
+		echo "Installing gobject-introspection..."; \
+		if command -v apt > /dev/null 2>&1; then sudo apt install -y gobject-introspection; fi; \
+		if command -v dnf > /dev/null 2>&1; then sudo dnf install -y gobject-introspection; fi; \
+		if command -v pacman > /dev/null 2>&1; then sudo pacman -S --noconfirm gobject-introspection; fi; \
+	else \
+		echo "gobject-introspection is already installed."; \
+	fi
+
 create_config_dir:
 	mkdir -p $(CONFIG_DIR)
 	@echo "Config dir: $(CONFIG_DIR)"
