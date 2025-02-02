@@ -8,9 +8,6 @@ def write_config():
 
     # dict of all default settings
     settings = {
-        'border': True,
-        "border_color": "black",
-        "background_color": "white",
         "always_on_top": True,
         "close_key": "q",
         'increase_size_key': '+',

@@ -55,7 +55,6 @@ class main_window(Gtk.Window):
     def quit(self, widget, event):
         if event.keyval == ord(self.settings["close_key"]):
             # if the key value is q, close the window
-            print("Closing window...")  # debug
             self.close()
 
     def on_mouse_click(self, widget, event):
@@ -78,31 +77,38 @@ class main_window(Gtk.Window):
             self.move(new_x, new_y)
 
     def display_image(self, img):
+        # add image widget to window
         self.img_widget.set_from_pixbuf(img)
         self.add(self.img_widget)
         self.show_all()
 
     def resize_window(self, widget, event):
-        width, height = self.get_size()
-
+        # change size of window and image with scale factor
         if event.keyval == ord(self.settings["increase_size_key"]):
-            scale_factor = 1.1
+            new_width = int(self.get_size()[0] * 1.1)
+            new_height = int(self.get_size()[1] * 1.1)
         elif event.keyval == ord(self.settings["decrease_size_key"]):
-            scale_factor = 0.9
+            new_width = int(self.get_size()[0] * 0.9)
+            new_height = int(self.get_size()[1] * 0.9)
+        elif event.keyval == ord(self.settings["reset_size_key"]):
+            # reset image and window size
+            new_width, new_height = (
+                self.original_pixbuf.get_width(),
+                self.original_pixbuf.get_height(),
+            )
         else:
             return
-
-        new_width = int(self.get_size()[0] * scale_factor)
-        new_height = int(self.get_size()[1] * scale_factor)
 
         self.resize(new_width, new_height)
         self.resize_image(new_width, new_height)
 
     def resize_image(self, new_width, new_height):
         if self.original_pixbuf:
+            # scale the pixbuf
             scaled_pixbuf = self.original_pixbuf.scale_simple(
                 new_width, new_height, GdkPixbuf.InterpType.BILINEAR
             )
+            # set newly scaled pixbuf into image widget and display
             self.img_widget.set_from_pixbuf(scaled_pixbuf)
             self.show_all()
 
