@@ -1,11 +1,8 @@
 import gi
-import os
 from modules import args_handler, config_handler, image_handler
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk, GdkPixbuf
-
-os.environ["GTK_MODULES"] = ""
 
 class main_window(Gtk.Window):
     def __init__(self, img_x=None, img_y=None, img=None):
